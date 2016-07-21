@@ -13,4 +13,52 @@ public class Query {
 
     public static final String [] queries = {sessions, activeUserSessions, percentOfMaxOpenCursors, percentOfMaxSessions, sysMetrics,
             avgActiveSessionsPerLogicalCPU, waitClassBreakDownMetrics};
+    
+    
+    public static final String[] utilizationKeys = {
+    		"Sessions", 
+    		"% of max sessions", 
+    		"% of max open cursors", 
+    		"Shared Pool Free %", 
+    		"Temp Space Used", 
+    		"Total PGA Allocated"};
+    
+    public static final String[] utilizationTitles = {
+    		"Total Sessions", 
+    		"% of max sessions", 
+    		"% of max open cursors", 
+    		"Shared Pool Free %", 
+    		"Temp Space Used", 
+    		"Total PGA Allocated"};
+    
+	public static final String[] activityKeys = {
+			"Active User Sessions",
+			"Average Active Sessions per logical CPU",
+			"Average Active Sessions",
+			"Current OS Load",
+			"DB Block Changes Per Sec"
+	};
+	public static final String[] activityTitles = {
+			"Active Sessions Current",
+			"Average Active Sessions per logical CPU",
+			"Average Active Sessions",
+			"Current OS Load",
+			"DB Block Changes Per Sec"			
+	};
+	
+	public static final String[] effiencyKeys = {
+			"Active User Sessions",
+			"Average Active Sessions per logical CPU",
+			"Average Active Sessions",
+			"Current OS Load",
+			"DB Block Changes Per Sec"
+	};
+	public static final String[] effiencyTitles = {
+			"Active Sessions Current",
+			"Average Active Sessions per logical CPU",
+			"Average Active Sessions",
+			"Current OS Load",
+			"DB Block Changes Per Sec"			
+	};
+
 }

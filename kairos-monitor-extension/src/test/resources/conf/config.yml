@@ -1,0 +1,9 @@
+# Kairos DB connection params
+host: "localhost"
+port: 5000
+sid: "test"
+username: "root"
+password: "root"
+
+# prefix used to show up metrics in AppDynamics
+metricPathPrefix:  "Custom Metrics|Kairos Server|"

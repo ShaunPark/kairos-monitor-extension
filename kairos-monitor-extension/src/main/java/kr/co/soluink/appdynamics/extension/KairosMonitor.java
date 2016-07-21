@@ -47,7 +47,7 @@ public class KairosMonitor extends AManagedMonitor {
     public KairosMonitor() throws ClassNotFoundException {
         String msg = "Using Monitor Version [" + getImplementationVersion() + "]";
         System.out.println(msg);
-        Class.forName("oracle.jdbc.driver.OracleDriver");
+        Class.forName("kr.co.realtimetech.kairos.jdbc.kairosDriver");
     }
 
     public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskContext)
@@ -62,13 +62,13 @@ public class KairosMonitor extends AManagedMonitor {
 
                 printDBMetrics(config);
 
-                logger.info("Oracle DB Monitoring Task completed successfully");
-                return new TaskOutput("Oracle DB Monitoring Task completed successfully");
+                logger.info("Kairos DB Monitoring Task completed successfully");
+                return new TaskOutput("Kairos DB Monitoring Task completed successfully");
             } catch (Exception e) {
                 logger.error("Metrics Collection Failed: ", e);
             }
         }
-        throw new TaskExecutionException("Oracle DB Monitoring Task completed with failures.");
+        throw new TaskExecutionException("Kairos DB Monitoring Task completed with failures.");
     }
 
     private void fetchMetrics(Configuration config, String[] queries) throws Exception {
@@ -111,77 +111,43 @@ public class KairosMonitor extends AManagedMonitor {
         String port = String.valueOf(config.getPort());
         String userName = config.getUsername();
         String password = config.getPassword();
-        String sid = config.getSid();
+        String dbname = config.getDbName();
 
         if(Strings.isNullOrEmpty(port)) {
-            port = "1521";
+            port = "5000";
         }
-        if(Strings.isNullOrEmpty(sid)) {
-            sid = "orcl";
+        if(Strings.isNullOrEmpty(dbname)) {
+        	dbname = "test";
         }
-        String connStr = String.format("jdbc:oracle:thin:@%s:%s:%s", host, port, sid);
+        String connStr = String.format("jdbc:kairos://%s:%s/%s", host, port, dbname);
         logger.debug("Connecting to: " + connStr);
 
         Connection conn = DriverManager.getConnection(connStr, userName, password);
-        logger.debug("Successfully connected to Oracle DB");
+        logger.debug("Successfully connected to Kairos DB");
 
         return conn;
     }
 
     private void printDBMetrics(Configuration config) {
-        String metricPath = config.getMetricPathPrefix() + config.getSid() + "|";
+        String metricPath = config.getMetricPathPrefix() + config.getDbName() + "|";
         // RESOURCE UTILIZATION ////////////////////////////////////
         String resourceUtilizationMetricPath = metricPath + "Resource Utilization|";
-        printMetric(resourceUtilizationMetricPath + "Total Sessions", getString("Sessions"));
-        printMetric(resourceUtilizationMetricPath + "% of max sessions", getString("% of max sessions"));
-        printMetric(resourceUtilizationMetricPath + "% of max open cursors", getString("% of max open cursors"));
-
-        printMetric(resourceUtilizationMetricPath + "Shared Pool Free %", getString("Shared Pool Free %"));
-        printMetric(resourceUtilizationMetricPath + "Temp Space Used", getString("Temp Space Used"));
-        printMetric(resourceUtilizationMetricPath + "Total PGA Allocated", getString("Total PGA Allocated"));
+        for( int i = 0 ; i < Query.utilizationKeys.length ; i++ ) {
+        	printMetric(resourceUtilizationMetricPath + Query.utilizationTitles[i], getString(Query.utilizationKeys[i]));
+        }
 
         // ACTIVITY ////////////////////////////////////////////////
         String activityMetricPath = metricPath + "Activity|";
-        printMetric(activityMetricPath + "Active Sessions Current", getString("Active User Sessions"));
-        printMetric(activityMetricPath + "Average Active Sessions per logical CPU", getString("Average Active Sessions per logical CPU"));
-
-        printMetric(activityMetricPath + "Average Active Sessions", getString("Average Active Sessions"));
-        printMetric(activityMetricPath + "Current OS Load", getString("Current OS Load"));
-        printMetric(activityMetricPath + "DB Block Changes Per Sec", getString("DB Block Changes Per Sec"));
-        printMetric(activityMetricPath + "DB Block Changes Per Txn", getString("DB Block Changes Per Txn"));
-        printMetric(activityMetricPath + "DB Block Gets Per Sec", getString("DB Block Gets Per Sec"));
-        printMetric(activityMetricPath + "DB Block Gets Per Txn", getString("DB Block Gets Per Txn"));
-        printMetric(activityMetricPath + "Executions Per Sec", getString("Executions Per Sec"));
-        printMetric(activityMetricPath + "Executions Per Txn", getString("Executions Per Txn"));
-        printMetric(activityMetricPath + "I/O Megabytes per Second", getString("I/O Megabytes per Second"));
-        printMetric(activityMetricPath + "Logical Reads Per Sec", getString("Logical Reads Per Sec"));
-        printMetric(activityMetricPath + "Physical Reads Per Sec", getString("Physical Reads Per Sec"));
-        printMetric(activityMetricPath + "Physical Read Total Bytes Per Sec", getString("Physical Read Total Bytes Per Sec"));
-        printMetric(activityMetricPath + "Physical Write Total Bytes Per Sec", getString("Physical Write Total Bytes Per Sec"));
-
-        printMetric(activityMetricPath + "Wait Class Breakdown|Administrative", getString("Wait Class Breakdown|Administrative"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Application", getString("Wait Class Breakdown|Application"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Commit", getString("Wait Class Breakdown|Commit"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Concurrency", getString("Wait Class Breakdown|Concurrency"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Configuration", getString("Wait Class Breakdown|Configuration"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|CPU", getString("Wait Class Breakdown|CPU"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Network", getString("Wait Class Breakdown|Network"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Other", getString("Wait Class Breakdown|Other"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|Scheduler", getString("Wait Class Breakdown|Scheduler"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|System I/O", getString("Wait Class Breakdown|System I/O"));
-        printMetric(activityMetricPath + "Wait Class Breakdown|User I/O", getString("Wait Class Breakdown|User I/O"));
+        for( int i = 0 ; i < Query.activityKeys.length ; i++ ) {
+        	printMetric(activityMetricPath + Query.activityTitles[i], getString(Query.activityKeys[i]));
+        }
+        
 
         // EFFICIENCY //////////////////////////////////////////////
         String efficiencyMetricPath = metricPath + "Efficiency|";
-        printMetric(efficiencyMetricPath + "Database CPU Time Ratio", getString("Database CPU Time Ratio"));
-        printMetric(efficiencyMetricPath + "Database Wait Time Ratio", getString("Database Wait Time Ratio"));
-        printMetric(efficiencyMetricPath + "Memory Sorts Ratio", getString("Memory Sorts Ratio"));
-        printMetric(efficiencyMetricPath + "Execute Without Parse Ratio", getString("Execute Without Parse Ratio"));
-        printMetric(efficiencyMetricPath + "Soft Parse Ratio", getString("Soft Parse Ratio"));
-        // Time measured in Centiseconds
-        printMetric(efficiencyMetricPath + "Response Time Per Txn", getString("Response Time Per Txn"));
-        // Time measured in Centiseconds
-        printMetric(efficiencyMetricPath + "SQL Service Response Time", getString("SQL Service Response Time"));
+        for( int i = 0 ; i < Query.effiencyKeys.length ; i++ ) {
+        	printMetric(efficiencyMetricPath + Query.effiencyTitles[i], getString(Query.effiencyKeys[i]));
+        }
     }
 
     protected void printMetric(String metricName, String value) {

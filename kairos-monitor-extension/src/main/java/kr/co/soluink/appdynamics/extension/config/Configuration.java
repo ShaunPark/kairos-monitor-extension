@@ -4,7 +4,7 @@ public class Configuration {
 
     private String host;
     private int port;
-    private String sid;
+    private String dbName;
     private String username;
     private String password;
 
@@ -26,12 +26,12 @@ public class Configuration {
         this.port = port;
     }
 
-    public String getSid() {
-        return sid;
+    public String getDbName() {
+        return dbName;
     }
 
-    public void setSid(String sid) {
-        this.sid = sid;
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
     }
 
     public String getUsername() {
